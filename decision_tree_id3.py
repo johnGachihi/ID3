@@ -7,6 +7,7 @@ from sklearn.metrics import confusion_matrix
 import networkx as nx
 import matplotlib.pyplot as plt
 import operator
+from ID3.id3 import ID3
 
 
 def entropy(attr_name):
@@ -79,11 +80,27 @@ def reduce_training_dataset(data, delete_rows, selected_root_node):
 # using pandas to read csv file containing training dataset
 data_headers = ['engine', 'turbo', 'weight', 'fueleco', 'fast']
 data = pd.read_csv("id3_data.csv", names=data_headers, header=None)
-print(data[['fueleco', 'fast']].groupby(['fueleco']).size())
-for value, count in data['engine'].value_counts().items():
-    print('Count of', value, 'is', count)
+
+print(ID3.information_gain('fueleco', 'fast', data[['fueleco', 'fast']]))
+print('\n\n\n')
+
+#############################################################2516291673878229
+# print(data[['fueleco', 'fast']].groupby(['fueleco', 'fast']).get_group(('average', 'no')))
+# print(len(data[['fueleco', 'fast']].index))
+# for value, count in data[['fueleco', 'fast']].groupby(['fueleco', 'fast']).size().items():
+#     print('Count of', value, 'is', count)
+
+gb = data[['fueleco', 'fast']].groupby(['fueleco'])
+groups = [gb.get_group(x) for x in gb.groups]
+
+for group_name, group in data[['fueleco', 'fast']].groupby(['fueleco']):
+    print(len(group.index))
+    for subgroup_name, subgroup in group.groupby(['fast']):
+        print(subgroup_name, len(subgroup.index))
+        print(type(subgroup))
 # print('data', data)
 # print(entropy(list(data['fast'])))
+##############################################################################
 
 target_entopy, attr_row_del_dict = entropy('fast')
 print("Entropy of fast is: ", target_entopy)
@@ -98,3 +115,4 @@ print("The selected root node is: ", selected_root_node)
 print("The rows to be deleted are: ", delete_row)
 data = reduce_training_dataset(data, delete_row, selected_root_node)
 print("New data set for next iteration is: \n", data)
+
