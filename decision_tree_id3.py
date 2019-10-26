@@ -81,10 +81,19 @@ def reduce_training_dataset(data, delete_rows, selected_root_node):
 data_headers = ['engine', 'turbo', 'weight', 'fueleco', 'fast']
 data = pd.read_csv("id3_data.csv", names=data_headers, header=None)
 
-print(ID3.information_gain('fueleco', 'fast', data[['fueleco', 'fast']]))
+############################################################
+a = [1,2,3,4,5]
+print(a[:len(a)-1])
+# attr, count = data['fast'].value_counts()[0]
+# print(data['fast'].value_counts().idxmax())
+id_3 = ID3()
+id_3.id3(data_headers[:len(data_headers)-1], 'fast', data)
+# print(ID3.information_gain('fueleco', 'fast', data[['fueleco', 'fast']]))
 print('\n\n\n')
 
-#############################################################2516291673878229
+############################################################
+#2516291673878229
+#251629167388
 # print(data[['fueleco', 'fast']].groupby(['fueleco', 'fast']).get_group(('average', 'no')))
 # print(len(data[['fueleco', 'fast']].index))
 # for value, count in data[['fueleco', 'fast']].groupby(['fueleco', 'fast']).size().items():
