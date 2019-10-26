@@ -1,0 +1,5 @@
+http://www.datasciencemadesimple.com/drop-delete-columns-python-pandas/
+
+https://scikit-learn.org/stable/modules/generated/sklearn.metrics.confusion_matrix.html
+
+https://www.computerhope.com/issues/ch001927.htm
