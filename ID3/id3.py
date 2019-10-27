@@ -1,62 +1,8 @@
 from math import log2
 import pandas
-import networkx as nx
-import matplotlib.pyplot as plt
+
 
 class ID3:
-    def __init__(self):
-        self.x = 0
-        self.y = 0
-        self.G = nx.Graph()
-
-    @staticmethod
-    def entropy(data):
-        """
-
-        :param data: Single row column data
-        :type data: pandas.core.series.Series
-        :return:
-        """
-        row_count = data.count()
-        entropy = 0
-
-        for value, value_count in data.value_counts().items():
-            probability = value_count/row_count
-            entropy -= probability * log2(probability)
-
-        return entropy
-
-    @staticmethod
-    def in_attr_entropy(in_attr, out_attr, data):
-        """
-        Calculates entropy of @in_attr with relation to @out_attr
-        :param in_attr: Name of input attribute
-        :type in_attr: str
-        :param out_attr: Name of output attribute
-        :type out_attr: str
-        :param data: DataFrame containing columns for the input and output attributes
-        :type data: pandas.core.frame.DataFrame
-        """
-
-        row_count = len(data.index)
-        entropy = 0
-
-        for group_name, group in data.groupby([in_attr]):
-            group_size = len(group.index)
-            entropy_acc = 0
-
-            for subgroup_name, subgroup in group.groupby([out_attr]):
-                probability = len(subgroup.index) / group_size
-                entropy_acc -= probability * log2(probability)
-
-            entropy_acc *= group_size / row_count
-            entropy += entropy_acc
-
-        return entropy
-
-    @classmethod
-    def information_gain(cls, in_attr, out_attr, data):
-        return cls.entropy(data[out_attr]) - cls.in_attr_entropy(in_attr, out_attr, data)
 
     def id3(self, in_attr_list: list, out_attr: str, data: pandas.DataFrame, grouping_value="", prev_node=""):
         """
@@ -101,6 +47,16 @@ class ID3:
 
     @classmethod
     def __largest_ig_attr(cls, in_attr_list, out_attr, data):
+        """
+        Gets the attribute, from among @in_attr_list, that has
+        the greatest Information Gain.
+
+        :param in_attr_list: List of input attributes
+        :param out_attr: The output attribute
+        :param data: A Dataframe with columns for all input
+         attributes and the output attribute
+        :return:
+        """
         highest_ig_attr = in_attr_list[0]
         highest_ig = cls.information_gain(highest_ig_attr, out_attr, data)
 
@@ -112,11 +68,57 @@ class ID3:
 
         return highest_ig_attr
 
+    @classmethod
+    def information_gain(cls, in_attr, out_attr, data):
+        return cls.entropy(data[out_attr]) - cls.in_attr_entropy(in_attr, out_attr, data)
+
+    @staticmethod
+    def entropy(data):
+        """
+        Calculate entropy. (Not relative entropy). Takes in
+        a Series object with a single column.
+
+        :param data: Single row column data
+        :type data: pandas.core.series.Series
+        :return:
+        """
+        row_count = data.count()
+        entropy = 0
+
+        for value, value_count in data.value_counts().items():
+            probability = value_count / row_count
+            entropy -= probability * log2(probability)
+
+        return entropy
+
+    @staticmethod
+    def in_attr_entropy(in_attr, out_attr, data):
+        """
+        Calculates entropy of @in_attr in relation to @out_attr
+        :param in_attr: Name of input attribute
+        :type in_attr: str
+        :param out_attr: Name of output attribute
+        :type out_attr: str
+        :param data: DataFrame containing columns for the input and output attributes
+        :type data: pandas.core.frame.DataFrame
+        """
+
+        row_count = len(data.index)
+        entropy = 0
+
+        for group_name, group in data.groupby([in_attr]):
+            group_size = len(group.index)
+            entropy_acc = 0
+
+            for subgroup_name, subgroup in group.groupby([out_attr]):
+                probability = len(subgroup.index) / group_size
+                entropy_acc -= probability * log2(probability)
+
+            entropy_acc *= group_size / row_count
+            entropy += entropy_acc
+
+        return entropy
+
     @staticmethod
     def __print_node(prev_node, cur_node, edge_label):
         print('{} --{}-- {}'.format(prev_node, edge_label, cur_node))
-
-    @staticmethod
-    def __addnode(G, nodename, x, y):
-        G.add_node(nodename)
-        G.node[nodename]['pos'] = (x, y)
