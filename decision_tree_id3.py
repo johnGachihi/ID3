@@ -84,6 +84,7 @@ data = pd.read_csv("id3_data.csv", names=data_headers, header=None)
 ############################################################
 a = [1,2,3,4,5]
 print(a[:len(a)-1])
+
 # attr, count = data['fast'].value_counts()[0]
 # print(data['fast'].value_counts().idxmax())
 id_3 = ID3()
@@ -94,19 +95,24 @@ print('\n\n\n')
 ############################################################
 #2516291673878229
 #251629167388
-# print(data[['fueleco', 'fast']].groupby(['fueleco', 'fast']).get_group(('average', 'no')))
-# print(len(data[['fueleco', 'fast']].index))
-# for value, count in data[['fueleco', 'fast']].groupby(['fueleco', 'fast']).size().items():
-#     print('Count of', value, 'is', count)
+for group_name, group in data.groupby(['engine']):
+    print(group_name)
+data2 = data.groupby(['fueleco', 'fast'])
+print(data['fast'].unique().size)
+# if data['fast'].unique()
+
+
+print(data.groupby(['fueleco', 'fast']).get_group(('average', 'no')))
+
 
 gb = data[['fueleco', 'fast']].groupby(['fueleco'])
 groups = [gb.get_group(x) for x in gb.groups]
 
-for group_name, group in data[['fueleco', 'fast']].groupby(['fueleco']):
-    print(len(group.index))
-    for subgroup_name, subgroup in group.groupby(['fast']):
-        print(subgroup_name, len(subgroup.index))
-        print(type(subgroup))
+# for group_name, group in data[['fueleco', 'fast']].groupby(['fueleco']):
+#     print(len(group.index))
+#     for subgroup_name, subgroup in group.groupby(['fast']):
+#         print(subgroup_name, len(subgroup.index))
+#         print(subgroup.drop(['fast'], axis=1))
 # print('data', data)
 # print(entropy(list(data['fast'])))
 ##############################################################################
