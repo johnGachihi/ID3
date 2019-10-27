@@ -39,7 +39,6 @@ class ID3:
         """
 
         row_count = len(data.index)
-
         entropy = 0
 
         for group_name, group in data.groupby([in_attr]):
@@ -59,55 +58,63 @@ class ID3:
     def information_gain(cls, in_attr, out_attr, data):
         return cls.entropy(data[out_attr]) - cls.in_attr_entropy(in_attr, out_attr, data)
 
-    def id3(self, in_attr_list: list, out_attr: str, data: pandas.DataFrame, prev_node=None):
+    def id3(self, in_attr_list: list, out_attr: str, data: pandas.DataFrame, grouping_value="", prev_node=""):
         """
         :param in_attr_list: A list of input attributes
         :param out_attr: The output attribute
         :param data: A Dataframe containing all the data
+        :param grouping_value: The value used to group the data
+        :type grouping_value: str
+        :param prev_node: The previous established node
+        :type prev_node: str
         """
 
         if data.empty:
-            self.y += 2
-            self.__addnode(self.G, 'failed', self.x, self.y)
+            self.__print_node(prev_node, 'Failed', grouping_value)
+            return
 
         if data[out_attr].unique().size == 1:
-            value = data[out_attr].unique()[0]
-            self.y += 2
-            self.__addnode(self.G, value, self.x, self.y)
+            node = data[out_attr].unique()[0]
+            self.__print_node(prev_node, node, grouping_value)
+            return
 
         if not in_attr_list:
-            value = data[out_attr].value_counts().idxmax()
-            self.y += 2
-            self.__addnode(self.G, value, self.x, self.y)
+            node = data[out_attr].value_counts().idxmax()
+            self.__print_node(prev_node, node, grouping_value)
+            return
 
         largest_ig_attr = self.__largest_ig_attr(in_attr_list, out_attr, data)
-        self.y += 1
-        self.__addnode(self.G, largest_ig_attr, self.x, self.y)
-        if prev_node:
-            self.G.add_edge(prev_node, largest_ig_attr, )
+        self.__print_node(prev_node, largest_ig_attr, grouping_value)
 
+        temp_in_attr_list = in_attr_list.copy()
+        temp_in_attr_list.remove(largest_ig_attr)
+        for grouping_value, group in data.groupby([largest_ig_attr]):
+            self.id3(
+                in_attr_list   = temp_in_attr_list,
+                out_attr       = out_attr,
+                data           = group.drop([largest_ig_attr], axis=1),
+                grouping_value = grouping_value,
+                prev_node      = largest_ig_attr
+            )
 
-        nx.draw_networkx(
-            self.G,
-            nx.get_node_attributes(self.G, 'pos'),
-            node_color='blue',
-            node_size=450
-        )
-        plt.show()
-
+        return
 
     @classmethod
     def __largest_ig_attr(cls, in_attr_list, out_attr, data):
-        highest_IG_attr = in_attr_list[0]
-        highest_IG = cls.information_gain(highest_IG_attr, out_attr, data)
+        highest_ig_attr = in_attr_list[0]
+        highest_ig = cls.information_gain(highest_ig_attr, out_attr, data)
 
         for attr in in_attr_list[1:]:
-            cur_IG = cls.information_gain(attr, out_attr, data)
-            if highest_IG < cur_IG:
-                highest_IG_attr = attr
-                highest_IG = cur_IG
+            cur_ig = cls.information_gain(attr, out_attr, data)
+            if highest_ig < cur_ig:
+                highest_ig_attr = attr
+                highest_ig = cur_ig
 
-        return highest_IG_attr
+        return highest_ig_attr
+
+    @staticmethod
+    def __print_node(prev_node, cur_node, edge_label):
+        print('{} --{}-- {}'.format(prev_node, edge_label, cur_node))
 
     @staticmethod
     def __addnode(G, nodename, x, y):
