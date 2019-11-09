@@ -35,3 +35,4 @@ class TestID3(TestCase):
             self.id3.classify(self.test_data),
             ['yes', 'no', 'yes', 'no', 'yes', 'no', 'no', 'no']
         )
+

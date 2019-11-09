@@ -168,7 +168,16 @@ class ID3:
 
         result = []
         for index, row in data.iterrows():
+            result.append(self.classify_row(row, self.tree.tree))
 
         return result
 
-    def
+    def classify_row(self, row, tree):
+        attr = next(iter(tree))
+        row_val = row[attr]
+        decision = tree[attr][row_val]
+
+        if isinstance(decision, dict):
+            return self.classify_row(row, tree[attr][row_val])
+        else:
+            return decision
