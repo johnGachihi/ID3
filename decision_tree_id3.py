@@ -87,9 +87,9 @@ print(a[:len(a)-1])
 
 # attr, count = data['fast'].value_counts()[0]
 # print(data['fast'].value_counts().idxmax())
-id_3 = ID3(data_headers[:len(data_headers)-1], 'fast', data)
+id_3 = ID3(data_headers[:len(data_headers)-1], 'fast')
 # id_3.id3(data_headers[:len(data_headers)-1], 'fast', data)
-print(id_3.compute())
+print(id_3.generate_decision_tree(data))
 # print(ID3.information_gain('fueleco', 'fast', data[['fueleco', 'fast']]))
 print('\n\n\n')
 

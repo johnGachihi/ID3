@@ -1,19 +1,19 @@
 from math import log2
 import pandas
+from ID3.decision_tree import DecisionTree
 
 
 class ID3:
 
-    def __init__(self, in_attr_list, out_attr, data):
+    def __init__(self, in_attr_list, out_attr):
         self.in_attr_list = in_attr_list
         self.out_attr = out_attr
-        self.data = data
 
-        self.tree = dict()
+        self.tree = DecisionTree()
 
-    def compute(self):
-        self.id3(self.in_attr_list, self.data)
-        return self.tree
+    def generate_decision_tree(self, data):
+        self.id3(self.in_attr_list, data)
+        return self.tree.get_tree()
 
     def id3(self, in_attr_list: list, data: pandas.DataFrame, grouping_value="", prev_node="", ancestors=[]):
         """
@@ -29,22 +29,23 @@ class ID3:
         if data.empty:
             self.__print_node(prev_node, 'Failed', grouping_value)
             # ...
+            self.tree.add_to_tree(ancestors, 'Failed')
             return
 
         if data[self.out_attr].unique().size == 1:
             node = data[self.out_attr].unique()[0]
             self.__print_node(ancestors, node, grouping_value)
-            self.add_to_tree(self.tree, ancestors, node)
+            self.tree.add_to_tree(ancestors, node)
             return
 
         if not in_attr_list:
             node = data[self.out_attr].value_counts().idxmax()
             self.__print_node(ancestors, node, grouping_value)
-            self.add_to_tree(self.tree, ancestors, node)
+            self.tree.add_to_tree(ancestors, node)
             return
 
         largest_ig_attr = self.__largest_ig_attr(in_attr_list, self.out_attr, data)
-        self.add_to_tree(self.tree, ancestors, largest_ig_attr, True)
+        self.tree.add_to_tree(ancestors, largest_ig_attr, True)
         self.__print_node(ancestors, largest_ig_attr, grouping_value)
 
         temp_in_attr_list = in_attr_list.copy()
@@ -134,7 +135,7 @@ class ID3:
 
         return entropy
 
-    @classmethod
+    """@classmethod
     def add_to_tree(cls, tree, ancestors, node, node_is_attr=False):
         if not ancestors:
             tree[node] = dict()
@@ -155,8 +156,19 @@ class ID3:
 
         tree = tree[ancestors[-1][0]]
 
-        return tree
+        return tree"""
 
     @staticmethod
     def __print_node(prev_node, cur_node, edge_label):
         print('{} --{}-- {}'.format(prev_node, edge_label, cur_node))
+
+    def classify(self, data):
+        if not self.tree.tree:
+            return 'No decision tree'
+
+        result = []
+        for index, row in data.iterrows():
+
+        return result
+
+    def
