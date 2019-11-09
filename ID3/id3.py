@@ -24,11 +24,9 @@ class ID3:
         :param prev_node: The previous established node
         :type prev_node: str
         """
-        print('tree', self.tree)
 
         if data.empty:
             self.__print_node(prev_node, 'Failed', grouping_value)
-            # ...
             self.tree.add_to_tree(ancestors, 'Failed')
             return
 
@@ -160,7 +158,7 @@ class ID3:
 
     @staticmethod
     def __print_node(prev_node, cur_node, edge_label):
-        print('{} --{}-- {}'.format(prev_node, edge_label, cur_node))
+        print('{} -- {}'.format(prev_node, cur_node))
 
     def classify(self, data):
         if not self.tree.tree:

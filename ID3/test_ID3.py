@@ -36,3 +36,8 @@ class TestID3(TestCase):
             ['yes', 'no', 'yes', 'no', 'yes', 'no', 'no', 'no']
         )
 
+    def test_classify_when_decision_tree_is_empty(self):
+        self.assertEqual(
+            self.id3.classify(self.test_data),
+            'No decision tree'
+        )
