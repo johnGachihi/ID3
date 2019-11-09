@@ -4,43 +4,58 @@ import pandas
 
 class ID3:
 
-    def id3(self, in_attr_list: list, out_attr: str, data: pandas.DataFrame, grouping_value="", prev_node=""):
+    def __init__(self, in_attr_list, out_attr, data):
+        self.in_attr_list = in_attr_list
+        self.out_attr = out_attr
+        self.data = data
+
+        self.tree = dict()
+
+    def compute(self):
+        self.id3(self.in_attr_list, self.data)
+        return self.tree
+
+    def id3(self, in_attr_list: list, data: pandas.DataFrame, grouping_value="", prev_node="", ancestors=[]):
         """
         :param in_attr_list: A list of input attributes
-        :param out_attr: The output attribute
         :param data: A Dataframe containing all the data
         :param grouping_value: The value used to group the data
         :type grouping_value: str
         :param prev_node: The previous established node
         :type prev_node: str
         """
+        print('tree', self.tree)
 
         if data.empty:
             self.__print_node(prev_node, 'Failed', grouping_value)
+            # ...
             return
 
-        if data[out_attr].unique().size == 1:
-            node = data[out_attr].unique()[0]
-            self.__print_node(prev_node, node, grouping_value)
+        if data[self.out_attr].unique().size == 1:
+            node = data[self.out_attr].unique()[0]
+            self.__print_node(ancestors, node, grouping_value)
+            self.add_to_tree(self.tree, ancestors, node)
             return
 
         if not in_attr_list:
-            node = data[out_attr].value_counts().idxmax()
-            self.__print_node(prev_node, node, grouping_value)
+            node = data[self.out_attr].value_counts().idxmax()
+            self.__print_node(ancestors, node, grouping_value)
+            self.add_to_tree(self.tree, ancestors, node)
             return
 
-        largest_ig_attr = self.__largest_ig_attr(in_attr_list, out_attr, data)
-        self.__print_node(prev_node, largest_ig_attr, grouping_value)
+        largest_ig_attr = self.__largest_ig_attr(in_attr_list, self.out_attr, data)
+        self.add_to_tree(self.tree, ancestors, largest_ig_attr, True)
+        self.__print_node(ancestors, largest_ig_attr, grouping_value)
 
         temp_in_attr_list = in_attr_list.copy()
         temp_in_attr_list.remove(largest_ig_attr)
         for grouping_value, group in data.groupby([largest_ig_attr]):
             self.id3(
                 in_attr_list   = temp_in_attr_list,
-                out_attr       = out_attr,
                 data           = group.drop([largest_ig_attr], axis=1),
                 grouping_value = grouping_value,
-                prev_node      = largest_ig_attr
+                prev_node      = largest_ig_attr,
+                ancestors      = ancestors + [(largest_ig_attr, grouping_value)]
             )
 
         return
@@ -118,6 +133,29 @@ class ID3:
             entropy += entropy_acc
 
         return entropy
+
+    @classmethod
+    def add_to_tree(cls, tree, ancestors, node, node_is_attr=False):
+        if not ancestors:
+            tree[node] = dict()
+            return
+
+        tree = cls.get_subtree(tree, ancestors)
+
+        if node_is_attr:
+            tree[ancestors[-1][1]] = {node: dict()}
+        else:
+            tree[ancestors[-1][1]] = node
+
+    @classmethod
+    def get_subtree(cls, tree, ancestors):
+        for attr, val in ancestors[:-1]:
+            tree = tree[attr]
+            tree = tree[val]
+
+        tree = tree[ancestors[-1][0]]
+
+        return tree
 
     @staticmethod
     def __print_node(prev_node, cur_node, edge_label):
