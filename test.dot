@@ -1,0 +1,18 @@
+strict digraph "" {
+	ROOT -> A_0	 [weight=1];
+	ROOT -> A_1	 [weight=1];
+	ROOT -> A_2	 [weight=1];
+	ROOT -> A_3	 [weight=1];
+	ROOT -> A_4	 [weight=1];
+	ROOT -> B;
+	A_0 -> B_0	 [weight=1];
+	B_0 -> C_0	 [weight=1];
+	A_1 -> B_1	 [weight=1];
+	B_1 -> C_1	 [weight=1];
+	A_2 -> B_2	 [weight=1];
+	B_2 -> C_2	 [weight=1];
+	A_3 -> B_3	 [weight=1];
+	B_3 -> C_3	 [weight=1];
+	A_4 -> B_4	 [weight=1];
+	B_4 -> C_4	 [weight=1];
+}
