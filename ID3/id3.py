@@ -26,25 +26,25 @@ class ID3:
         """
 
         if data.empty:
-            self.__print_node(prev_node, 'Failed', grouping_value)
+            # self.__print_node(prev_node, 'Failed', grouping_value)
             self.tree.add_to_tree(ancestors, 'Failed')
             return
 
         if data[self.out_attr].unique().size == 1:
             node = data[self.out_attr].unique()[0]
-            self.__print_node(ancestors, node, grouping_value)
+            # self.__print_node(ancestors, node, grouping_value)
             self.tree.add_to_tree(ancestors, node)
             return
 
         if not in_attr_list:
             node = data[self.out_attr].value_counts().idxmax()
-            self.__print_node(ancestors, node, grouping_value)
+            # self.__print_node(ancestors, node, grouping_value)
             self.tree.add_to_tree(ancestors, node)
             return
 
         largest_ig_attr = self.__largest_ig_attr(in_attr_list, self.out_attr, data)
         self.tree.add_to_tree(ancestors, largest_ig_attr, True)
-        self.__print_node(ancestors, largest_ig_attr, grouping_value)
+        # self.__print_node(ancestors, largest_ig_attr, grouping_value)
 
         temp_in_attr_list = in_attr_list.copy()
         temp_in_attr_list.remove(largest_ig_attr)
@@ -133,40 +133,17 @@ class ID3:
 
         return entropy
 
-    """@classmethod
-    def add_to_tree(cls, tree, ancestors, node, node_is_attr=False):
-        if not ancestors:
-            tree[node] = dict()
-            return
-
-        tree = cls.get_subtree(tree, ancestors)
-
-        if node_is_attr:
-            tree[ancestors[-1][1]] = {node: dict()}
-        else:
-            tree[ancestors[-1][1]] = node
-
-    @classmethod
-    def get_subtree(cls, tree, ancestors):
-        for attr, val in ancestors[:-1]:
-            tree = tree[attr]
-            tree = tree[val]
-
-        tree = tree[ancestors[-1][0]]
-
-        return tree"""
-
     @staticmethod
     def __print_node(prev_node, cur_node, edge_label):
         print('{} -- {}'.format(prev_node, cur_node))
 
     def classify(self, data):
-        if not self.tree.tree:
+        if not self.tree.get_tree():
             return 'No decision tree'
 
         result = []
         for index, row in data.iterrows():
-            result.append(self.classify_row(row, self.tree.tree))
+            result.append(self.classify_row(row, self.tree.get_tree()))
 
         return result
 
