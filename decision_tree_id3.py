@@ -1,7 +1,7 @@
 import pandas as pd
 from ID3.id3 import ID3
 from sklearn.metrics import confusion_matrix
-from Graph.graph_plotter import TreePlotter
+from Graph.tree_plotter import TreePlotter
 
 
 data_headers = ['engine', 'turbo', 'weight', 'fueleco', 'fast']
