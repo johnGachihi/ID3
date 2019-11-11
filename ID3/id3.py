@@ -15,36 +15,33 @@ class ID3:
         self.id3(self.in_attr_list, data)
         return self.tree.get_tree()
 
-    def id3(self, in_attr_list: list, data: pandas.DataFrame, grouping_value="", prev_node="", ancestors=[]):
+    def id3(self, in_attr_list: list, data: pandas.DataFrame, grouping_value="", ancestors=[]):
         """
         :param in_attr_list: A list of input attributes
-        :param data: A Dataframe containing all the data
+        :param data: A pandas DataFrame containing all the data
         :param grouping_value: The value used to group the data
         :type grouping_value: str
-        :param prev_node: The previous established node
-        :type prev_node: str
+        :param ancestors: A list of tuples in the form (node, edge)
+        tracing a path from the decision tree root node to the last
+         inserted node and edge
         """
 
         if data.empty:
-            # self.__print_node(prev_node, 'Failed', grouping_value)
             self.tree.add_to_tree(ancestors, 'Failed')
             return
 
         if data[self.out_attr].unique().size == 1:
             node = data[self.out_attr].unique()[0]
-            # self.__print_node(ancestors, node, grouping_value)
             self.tree.add_to_tree(ancestors, node)
             return
 
         if not in_attr_list:
             node = data[self.out_attr].value_counts().idxmax()
-            # self.__print_node(ancestors, node, grouping_value)
             self.tree.add_to_tree(ancestors, node)
             return
 
         largest_ig_attr = self.__largest_ig_attr(in_attr_list, self.out_attr, data)
         self.tree.add_to_tree(ancestors, largest_ig_attr, True)
-        # self.__print_node(ancestors, largest_ig_attr, grouping_value)
 
         temp_in_attr_list = in_attr_list.copy()
         temp_in_attr_list.remove(largest_ig_attr)
@@ -53,7 +50,6 @@ class ID3:
                 in_attr_list   = temp_in_attr_list,
                 data           = group.drop([largest_ig_attr], axis=1),
                 grouping_value = grouping_value,
-                prev_node      = largest_ig_attr,
                 ancestors      = ancestors + [(largest_ig_attr, grouping_value)]
             )
 
@@ -67,7 +63,7 @@ class ID3:
 
         :param in_attr_list: List of input attributes
         :param out_attr: The output attribute
-        :param data: A Dataframe with columns for all input
+        :param data: A pandas DataFrame with columns for all input attributes
          attributes and the output attribute
         :return:
         """
@@ -89,7 +85,7 @@ class ID3:
     @staticmethod
     def entropy(data):
         """
-        Calculate entropy. (Not relative entropy). Takes in
+        Calculate entropy. (Not relative entropy!). Takes in
         a Series object with a single column.
 
         :param data: Single row column data
@@ -109,6 +105,7 @@ class ID3:
     def in_attr_entropy(in_attr, out_attr, data):
         """
         Calculates entropy of @in_attr in relation to @out_attr
+
         :param in_attr: Name of input attribute
         :type in_attr: str
         :param out_attr: Name of output attribute
@@ -133,13 +130,21 @@ class ID3:
 
         return entropy
 
-    @staticmethod
-    def __print_node(prev_node, cur_node, edge_label):
-        print('{} -- {}'.format(prev_node, cur_node))
-
     def classify(self, data):
+        """
+        Uses generated decision tree to classify data.
+        This method should be called after the 'generate_decision_tree'
+        method has been called. If called before an exception will be thrown.
+        The reason is that no decision tree will have been generated
+
+        :param data: A pandas DataFrame containing all the input attributes
+         columns and the output attribute column that were used to create the
+         ID3 instance
+        :return: Returns a list of the categories of all rows in the data
+         as classified by the decision tree and in the order of the rows.
+        """
         if not self.tree.get_tree():
-            return 'No decision tree'
+            raise Exception('Decision tree not generated.')
 
         result = []
         for index, row in data.iterrows():
